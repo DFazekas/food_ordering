@@ -11,6 +11,139 @@ class BurgerPage extends StatefulWidget {
 }
 
 class _BurgerPageState extends State<BurgerPage> {
+  double netPrice = 0.0;
+  int quantity = 1;
+  final Color redColor = Color(0xFFFE7D6A);
+  final Color pinkColor = Color(0xFFF68D7F);
+  final Color greenColor = Color(0xFFD7FBD9);
+  final Color blueColor = Color(0xFFC6E7FE);
+  final Color orangeColor = Color(0xFFFFD143);
+
+  /// Adjusts the quantity and net price.
+  void adjustQuantity({String direction}) {
+    setState(() {
+      switch (direction) {
+        case "MINUS":
+          quantity = (quantity > 1) ? (quantity - 1) : 1;
+          break;
+        case "PLUS":
+          quantity = (quantity < 9) ? (quantity + 1) : quantity;
+          break;
+        default:
+          return;
+      }
+    });
+  }
+
+  Widget _buildListItem(
+      {String imgPath, String name, String price, Color color}) {
+    return Padding(
+      padding: const EdgeInsets.all(15.0),
+      child: Column(
+        children: <Widget>[
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              // Food list item.
+              // TODO: extract into builder.
+              Container(
+                width: 210.0,
+                child: Row(
+                  children: <Widget>[
+                    // Food image.
+                    Container(
+                      height: 75.0,
+                      width: 75.0,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(7.0),
+                        color: color,
+                      ),
+                      child: Center(
+                        child: Image.asset(
+                          imgPath,
+                          height: 50.0,
+                          width: 50.0,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 20.0),
+                    // Food details.
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Name.
+                        Text(
+                          name,
+                          style: GoogleFonts.notoSans(
+                              fontSize: 14.0, fontWeight: FontWeight.w500),
+                        ),
+                        // Price.
+                        Text(
+                          "\$" + price,
+                          style: GoogleFonts.lato(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w600,
+                            textStyle: TextStyle(color: redColor),
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+              SizedBox(height: 15.0),
+              Container(
+                width: 210.0,
+                child: Row(
+                  children: <Widget>[
+                    // Food image.
+                    Container(
+                      height: 75.0,
+                      width: 75.0,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(7.0),
+                        color: color,
+                      ),
+                      child: Center(
+                        child: Image.asset(
+                          imgPath,
+                          height: 50.0,
+                          width: 50.0,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 20.0),
+                    // Food details.
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Name.
+                        Text(
+                          name,
+                          style: GoogleFonts.notoSans(
+                              fontSize: 14.0, fontWeight: FontWeight.w500),
+                        ),
+                        // Price.
+                        Text(
+                          "\$" + price,
+                          style: GoogleFonts.lato(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w600,
+                            textStyle: TextStyle(color: redColor),
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -201,6 +334,111 @@ class _BurgerPageState extends State<BurgerPage> {
             ],
           ),
           SizedBox(height: 10.0),
+          // Price and quantity section.
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              // Price.
+              Container(
+                height: 70.0,
+                width: 125.0,
+                child: Center(
+                  child: Text(
+                      "\$" + (int.parse(widget.price) * quantity).toString(),
+                      style: GoogleFonts.notoSans(
+                          fontSize: 40.0,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF5E6166))),
+                ),
+              ),
+              // Quantity controls.
+              Container(
+                height: 60.0,
+                width: 225.0,
+                decoration: BoxDecoration(
+                  color: Color(0xFFFE7D6A),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10.0),
+                    bottomLeft: Radius.circular(10.0),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Container(
+                      height: 40.0,
+                      width: 105.0,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Row(
+                        children: <Widget>[
+                          // Btn -- Remove.
+                          IconButton(
+                              icon: Icon(Icons.remove,
+                                  size: 17.0, color: Color(0xFFFE7D6A)),
+                              onPressed: () =>
+                                  adjustQuantity(direction: 'MINUS')),
+                          // Quantity.
+                          Text(
+                            quantity.toString(),
+                            style: GoogleFonts.notoSans(
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.w400,
+                              color: Color(0xFFFe7D6A),
+                            ),
+                          ),
+                          // Btn -- Add.
+                          IconButton(
+                              icon: Icon(Icons.add,
+                                  size: 17.0, color: Color(0xFFFE7D6A)),
+                              onPressed: () =>
+                                  adjustQuantity(direction: 'PLUS')),
+                        ],
+                      ),
+                    ),
+                    Text("Add to cart"),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          // Featured section.
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Text(
+              "FEATURED",
+              style: GoogleFonts.notoSans(
+                fontSize: 16.0,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          Container(
+            height: 225.0,
+            width: MediaQuery.of(context).size.width,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: <Widget>[
+                _buildListItem(
+                    imgPath: "assets/cheese.png",
+                    name: "Sweet cheese",
+                    price: "11",
+                    color: pinkColor),
+                _buildListItem(
+                    imgPath: "assets/taco.png",
+                    name: "Taco",
+                    price: "9",
+                    color: greenColor),
+                _buildListItem(
+                    imgPath: "assets/sandwich.png",
+                    name: "Sandwich",
+                    price: "4",
+                    color: blueColor),
+              ],
+            ),
+          ),
         ],
       ),
     );
