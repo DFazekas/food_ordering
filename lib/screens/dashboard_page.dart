@@ -45,24 +45,55 @@ class _DashboardState extends State<Dashboard>
                       Database(firestore: _firestore).addStore(isDefault: true);
                     });
                   }, // TODO: implement ontap.
-                  child: Container(
-                      height: 50.0,
-                      width: 50.0,
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              blurRadius: 6.0,
-                              spreadRadius: 4.0,
-                              offset: Offset(0.0, 3.0)),
-                        ],
-                        color: Color(0xFFC6E7FE),
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          image: AssetImage("assets/tuxedo.png"),
-                          fit: BoxFit.contain,
+                  child: Stack(
+                    children: [
+                      // Invisible outer frame.
+                      Container(
+                        height: 45.0,
+                        width: 45.0,
+                        color: Colors.transparent,
+                      ),
+                      // Shopping cart icon.
+                      Container(
+                        height: 40.0,
+                        width: 40.0,
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                                color: Color(0xFFFE7D6A).withOpacity(0.3),
+                                blurRadius: 6.0,
+                                spreadRadius: 4.0,
+                                offset: Offset(0.0, 4.0)),
+                          ],
+                          color: Color(0xFFFE7D6A),
+                          shape: BoxShape.circle,
                         ),
-                      )),
+                        child: Center(
+                          child: Icon(Icons.shopping_cart, color: Colors.white),
+                        ),
+                      ),
+                      // Notification icon.
+                      Positioned(
+                        top: 1.0,
+                        right: 4.0,
+                        child: Container(
+                          height: 12.0,
+                          width: 12.0,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                          ),
+                          child: Center(
+                            child: Text('1',
+                                style: GoogleFonts.notoSans(
+                                  fontSize: 7.0,
+                                  textStyle: TextStyle(color: Colors.red),
+                                )),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 )
               ],
             ),

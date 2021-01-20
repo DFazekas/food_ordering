@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class BurgerPage extends StatefulWidget {
+class StorePage extends StatefulWidget {
   final String foodName, imgPath, price;
 
-  BurgerPage({this.foodName, this.imgPath, this.price});
+  StorePage({this.foodName, this.imgPath, this.price});
 
   @override
-  _BurgerPageState createState() => _BurgerPageState();
+  _StorePageState createState() => _StorePageState();
 }
 
-class _BurgerPageState extends State<BurgerPage> {
+class _StorePageState extends State<StorePage> {
   double netPrice = 0.0;
   int quantity = 1;
   final Color redColor = Color(0xFFFE7D6A);
