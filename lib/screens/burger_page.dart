@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class BurgerPage extends StatefulWidget {
-  final String foodname, imgPath, price;
+  final String foodName, imgPath, price;
 
-  BurgerPage({this.foodname, this.imgPath, this.price});
+  BurgerPage({this.foodName, this.imgPath, this.price});
 
   @override
   _BurgerPageState createState() => _BurgerPageState();
@@ -214,7 +214,7 @@ class _BurgerPageState extends State<BurgerPage> {
           Padding(
             padding: const EdgeInsets.only(left: 15.0),
             child: Text(
-              widget.foodname.toString().toUpperCase(),
+              widget.foodName.toString().toUpperCase(),
               style: GoogleFonts.notoSans(
                 fontWeight: FontWeight.w800,
                 fontSize: 27.0,
@@ -226,7 +226,7 @@ class _BurgerPageState extends State<BurgerPage> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               Hero(
-                tag: widget.foodname,
+                tag: widget.foodName,
                 child: Container(
                   height: 200.0,
                   width: 200.0,

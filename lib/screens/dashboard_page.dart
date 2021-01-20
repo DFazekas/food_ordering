@@ -1,7 +1,13 @@
+// Standard packages.
 import 'package:flutter/material.dart';
-import 'package:food_ordering/screens/burger_page.dart';
-import 'package:food_ordering/screens/food_tabs.dart';
+// External packages.
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+// Custom packages.
+import 'package:food_ordering/screens/food_tabs.dart';
+import 'package:food_ordering/models/store.dart';
+import 'package:food_ordering/services/database.dart';
+import 'package:food_ordering/widgets/store_card.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -10,6 +16,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with SingleTickerProviderStateMixin {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   TabController tabController;
 
   @override
@@ -32,24 +39,31 @@ class _DashboardState extends State<Dashboard>
                 // Nav menu.
                 Icon(Icons.menu, color: Colors.black),
                 // Profile avatar.
-                Container(
-                    height: 50.0,
-                    width: 50.0,
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            blurRadius: 6.0,
-                            spreadRadius: 4.0,
-                            offset: Offset(0.0, 3.0)),
-                      ],
-                      color: Color(0xFFC6E7FE),
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: AssetImage("assets/tuxedo.png"),
-                        fit: BoxFit.contain,
-                      ),
-                    ))
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      Database(firestore: _firestore).addStore(isDefault: true);
+                    });
+                  }, // TODO: implement ontap.
+                  child: Container(
+                      height: 50.0,
+                      width: 50.0,
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              blurRadius: 6.0,
+                              spreadRadius: 4.0,
+                              offset: Offset(0.0, 3.0)),
+                        ],
+                        color: Color(0xFFC6E7FE),
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                          image: AssetImage("assets/tuxedo.png"),
+                          fit: BoxFit.contain,
+                        ),
+                      )),
+                )
               ],
             ),
           ),
@@ -65,7 +79,7 @@ class _DashboardState extends State<Dashboard>
           Padding(
               padding: EdgeInsets.only(left: 15.0),
               child: Text(
-                "RECIPES",
+                "FOOD ITEMS",
                 style: GoogleFonts.notoSans(
                     fontWeight: FontWeight.w800, fontSize: 27.0),
               )),
@@ -81,8 +95,9 @@ class _DashboardState extends State<Dashboard>
               ),
               child: TextField(
                 decoration: InputDecoration(
-                  hintText: "Search",
-                  hintStyle: GoogleFonts.notoSans(fontSize: 14.0),
+                  hintText: 'Try: "cheese burger"',
+                  hintStyle: GoogleFonts.notoSans(
+                      fontSize: 14.0, color: Colors.grey.withOpacity(0.7)),
                   border: InputBorder.none,
                   fillColor: Colors.grey.withOpacity(0.5),
                   prefixIcon: Icon(Icons.search, color: Colors.grey),
@@ -95,7 +110,7 @@ class _DashboardState extends State<Dashboard>
           Padding(
             padding: EdgeInsets.only(left: 15.0),
             child: Text(
-              "Recommended",
+              "Popular Stores",
               style: GoogleFonts.notoSans(
                   fontWeight: FontWeight.w500, fontSize: 18.0),
             ),
@@ -103,32 +118,66 @@ class _DashboardState extends State<Dashboard>
           SizedBox(height: 20.0),
           Container(
               height: 200.0,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  _buildFoodCard(
-                    iconUrl: "assets/burger.png",
-                    foodName: "Hamburger",
-                    price: "21",
-                    boxColor: Color(0xFFFFE9C6),
-                    txtColor: Color(0xFFDA9551),
-                  ),
-                  _buildFoodCard(
-                    iconUrl: "assets/fries.png",
-                    foodName: "Fries",
-                    price: "15",
-                    boxColor: Color(0xFFC3E3FF),
-                    txtColor: Color(0xFF7799B9),
-                  ),
-                  _buildFoodCard(
-                    iconUrl: "assets/doughnut.png",
-                    foodName: "Doughnut",
-                    price: "15",
-                    boxColor: Color(0xFFD7FBD9),
-                    txtColor: Color(0xFF4DCD76),
-                  ),
-                ],
-              )),
+              child: StreamBuilder(
+                  stream: Database(firestore: this._firestore)
+                      .streamStores(uid: "stores"),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<List<StoreModel>> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.active ||
+                        snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.hasData == false || snapshot.data.isEmpty) {
+                        return const Center(
+                            child: Text("No stores available at this time."));
+                      } else {
+                        return ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: snapshot.data.length,
+                          itemBuilder: (_, index) {
+                            StoreModel data = snapshot.data[index];
+                            return StoreCard(
+                              logoPath: data.logoPath,
+                              storeName: data.name,
+                              ratingStars: data.ratingStars,
+                              ratingVotes: data.ratingVotes,
+                              ratingVotesStr: data.ratingVotesStr,
+                              estimatedDelivery: data.estimatedDelivery,
+                              boxColor: data.colorMain,
+                              txtColor: data.colorText,
+                              index: index,
+                            );
+                          },
+                        );
+                      }
+                    } else {
+                      return const Center(child: Text("Loading..."));
+                    }
+                    // return ListView(
+                    //   scrollDirection: Axis.horizontal,
+                    //   children: [
+                    //     _buildFoodCard(
+                    //       iconUrl: "assets/burger.png",
+                    //       foodName: "Hamburger",
+                    //       price: "21",
+                    //       boxColor: Color(0xFFFFE9C6),
+                    //       txtColor: Color(0xFFDA9551),
+                    //     ),
+                    //     _buildFoodCard(
+                    //       iconUrl: "assets/fries.png",
+                    //       foodName: "Fries",
+                    //       price: "15",
+                    //       boxColor: Color(0xFFC3E3FF),
+                    //       txtColor: Color(0xFF7799B9),
+                    //     ),
+                    //     _buildFoodCard(
+                    //       iconUrl: "assets/doughnut.png",
+                    //       foodName: "Doughnut",
+                    //       price: "15",
+                    //       boxColor: Color(0xFFD7FBD9),
+                    //       txtColor: Color(0xFF4DCD76),
+                    //     ),
+                    //   ],
+                    // );
+                  })),
           // Featured.
           SizedBox(height: 20.0),
           Padding(
@@ -166,68 +215,5 @@ class _DashboardState extends State<Dashboard>
         ],
       ),
     );
-  }
-
-  Widget _buildFoodCard({
-    String iconUrl,
-    String foodName,
-    String price,
-    Color boxColor,
-    Color txtColor,
-  }) {
-    return Padding(
-        padding: EdgeInsets.only(left: 15.0),
-        child: InkWell(
-          onTap: () {
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => BurgerPage(
-                    foodname: foodName, imgPath: iconUrl, price: price)));
-          },
-          child: Container(
-            height: 175.0,
-            width: 150.0,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15.0),
-              color: boxColor,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Item icon.
-                Hero(
-                  tag: foodName,
-                  child: Container(
-                    height: 75.0,
-                    width: 75.0,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Image.asset(iconUrl, height: 50.0, width: 50.0),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 25.0),
-                // Item name.
-                Text(
-                  foodName,
-                  style: TextStyle(
-                    fontSize: 17.0,
-                    color: txtColor,
-                  ),
-                ),
-                // Item price.
-                Text(
-                  "\$" + price,
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    color: txtColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ));
   }
 }
