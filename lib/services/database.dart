@@ -8,6 +8,7 @@ class Database {
 
   Database({this.firestore});
 
+  /// Stream all store documents.
   Stream<List<StoreModel>> streamStores({String uid}) {
     try {
       return firestore.collection(uid).get().then((query) {
@@ -22,19 +23,20 @@ class Database {
     }
   }
 
+  /// Stream all food documents from a single store, specified by their uid.
   Stream<List<FoodModel>> streamFood({String uid}) {
     try {
       return firestore
           .collection("stores")
-          .doc("store_01")
+          .doc(uid)
           .collection("menu")
-          // .collection("menu")
           .get()
           .then((query) {
         List<FoodModel> retVal = <FoodModel>[];
         query.docs.forEach((QueryDocumentSnapshot doc) {
           retVal.add(FoodModel.fromDocumentSnapshot(doc: doc));
         });
+
         return retVal;
       }).asStream();
     } catch (e) {
@@ -42,6 +44,7 @@ class Database {
     }
   }
 
+  /// Add a Store object to Firestore.
   Future<void> addStore({StoreModel store, bool isDefault = false}) async {
     try {
       if (isDefault == true) {
@@ -68,6 +71,37 @@ class Database {
       });
     } catch (e) {
       rethrow;
+    }
+  }
+
+  /// Add a Food object to the menu collection, given a Store's UID.
+  Future<void> addFoodToStore(
+      {StoreModel store, FoodModel food, bool, isDefault = false}) async {
+    try {
+      if (isDefault == true) {
+        food = FoodModel(
+            description: "Our fries are the best in...",
+            imagePath:
+                "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80",
+            name: "Fries",
+            oldPrice: "5.43",
+            onSale: true,
+            price: "4.23");
+      }
+      await firestore
+          .collection("stores")
+          .doc(store.uid)
+          .collection("menu")
+          .add({
+        "name": food.name,
+        "description": food.description,
+        "image_path": food.imagePath,
+        "old_price": food.oldPrice,
+        "price": food.price,
+        "on_sale": food.onSale
+      });
+    } catch (e) {
+      print(e);
     }
   }
 }

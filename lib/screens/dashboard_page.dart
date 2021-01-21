@@ -137,7 +137,7 @@ class _DashboardState extends State<Dashboard>
             ),
           ),
           SizedBox(height: 20.0),
-          // Recommendations.
+          // Popular stores.
           Padding(
             padding: EdgeInsets.only(left: 15.0),
             child: Text(
@@ -166,6 +166,8 @@ class _DashboardState extends State<Dashboard>
                           itemBuilder: (_, index) {
                             StoreModel data = snapshot.data[index];
                             return StoreCard(
+                              firestore: this._firestore,
+                              store: data,
                               logoPath: data.logoPath,
                               storeName: data.name,
                               ratingStars: data.ratingStars,

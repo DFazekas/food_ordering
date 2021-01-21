@@ -1,9 +1,17 @@
 // Standard packages.
 import 'package:flutter/material.dart';
 // External packages.
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:food_ordering/models/food.dart';
+// Custom packages.
+import 'package:food_ordering/models/store.dart';
+import 'package:food_ordering/screens/store_page.dart';
+import 'package:food_ordering/services/database.dart';
 
 class StoreCard extends StatefulWidget {
+  final FirebaseFirestore firestore;
+  final StoreModel store;
   final String logoPath;
   final String storeName;
   final Color boxColor;
@@ -16,6 +24,8 @@ class StoreCard extends StatefulWidget {
 
   StoreCard(
       {Key key,
+      this.firestore,
+      this.store,
       this.logoPath,
       this.storeName,
       this.boxColor,
@@ -39,12 +49,12 @@ class _StoreCardState extends State<StoreCard> {
             EdgeInsets.only(right: 15.0, left: widget.index == 0 ? 15.0 : 0.0),
         child: InkWell(
           onTap: () {
-            // TODO: implement ontap.
-            // Navigator.of(context).push(MaterialPageRoute(
-            //     builder: (context) => BurgerPage(
-            //         foodName: widget.storeName,
-            //         imgPath: widget.iconUrl,
-            //         price: widget.price)));
+            // Open store page.
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => StorePage(
+                      firestore: widget.firestore,
+                      store: widget.store,
+                    )));
           },
           child: Container(
             height: 175.0,

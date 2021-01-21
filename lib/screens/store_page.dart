@@ -1,37 +1,47 @@
+// Standard packages.
 import 'package:flutter/material.dart';
+import 'package:food_ordering/models/food.dart';
+import 'package:food_ordering/services/database.dart';
+import 'package:food_ordering/widgets/food_card.dart';
+// External packages.
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+// Custom packages.
+import 'package:food_ordering/models/store.dart';
 
 class StorePage extends StatefulWidget {
-  final String foodName, imgPath, price;
+  final FirebaseFirestore firestore;
+  final StoreModel store;
 
-  StorePage({this.foodName, this.imgPath, this.price});
+  StorePage({this.firestore, this.store});
 
   @override
   _StorePageState createState() => _StorePageState();
 }
 
 class _StorePageState extends State<StorePage> {
-  double netPrice = 0.0;
-  int quantity = 1;
   final Color redColor = Color(0xFFFE7D6A);
   final Color pinkColor = Color(0xFFF68D7F);
   final Color greenColor = Color(0xFFD7FBD9);
   final Color blueColor = Color(0xFFC6E7FE);
   final Color orangeColor = Color(0xFFFFD143);
+  int numCheckout = 0;
 
   /// Adjusts the quantity and net price.
   void adjustQuantity({String direction}) {
     setState(() {
-      switch (direction) {
-        case "MINUS":
-          quantity = (quantity > 1) ? (quantity - 1) : 1;
-          break;
-        case "PLUS":
-          quantity = (quantity < 9) ? (quantity + 1) : quantity;
-          break;
-        default:
-          return;
-      }
+      // TODO: implement function.
+      // switch (direction) {
+      //   case "MINUS":
+      //     quantity = (quantity > 1) ? (quantity - 1) : 1;
+      //     break;
+      //   case "PLUS":
+      //     quantity = (quantity < 9) ? (quantity + 1) : quantity;
+      //     break;
+      //   default:
+      //     return;
+      // }
     });
   }
 
@@ -146,17 +156,23 @@ class _StorePageState extends State<StorePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ListView(
-        children: <Widget>[
+    return SafeArea(
+      child: Scaffold(
+          body: SingleChildScrollView(
+        child: Column(children: <Widget>[
           // Nav bar section.
           Padding(
             padding: EdgeInsets.all(15.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
+                // TODO: Implement back button.
                 // Nav menu.
-                Icon(Icons.menu, color: Colors.black),
+                InkWell(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Icon(Icons.arrow_back, color: Colors.black)),
                 // Shopping cart.
                 Stack(
                   children: [
@@ -190,16 +206,17 @@ class _StorePageState extends State<StorePage> {
                       top: 1.0,
                       right: 4.0,
                       child: Container(
-                        height: 12.0,
-                        width: 12.0,
+                        height: 15.0,
+                        width: 15.0,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.white,
                         ),
                         child: Center(
-                          child: Text('1',
+                          child: Text(this.numCheckout.toString(),
                               style: GoogleFonts.notoSans(
-                                fontSize: 7.0,
+                                fontSize: 10.0,
+                                fontWeight: FontWeight.w700,
                                 textStyle: TextStyle(color: Colors.red),
                               )),
                         ),
@@ -210,237 +227,255 @@ class _StorePageState extends State<StorePage> {
               ],
             ),
           ),
-          // Hero section.
+          // Brand section.
           Padding(
             padding: const EdgeInsets.only(left: 15.0),
-            child: Text(
-              widget.foodName.toString().toUpperCase(),
-              style: GoogleFonts.notoSans(
-                fontWeight: FontWeight.w800,
-                fontSize: 27.0,
-              ),
+            child: Row(
+              children: [
+                // Store logo.
+                SvgPicture.network(
+                  widget.store.logoPath,
+                  height: 40.0,
+                  width: 40.0,
+                  fit: BoxFit.fill,
+                  placeholderBuilder: (context) => CircularProgressIndicator(),
+                ),
+                SizedBox(width: 20.0),
+                // Store name.
+                Text(
+                  widget.store.name.toString(),
+                  style: GoogleFonts.notoSans(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 27.0,
+                  ),
+                ),
+              ],
             ),
           ),
           SizedBox(height: 40.0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              Hero(
-                tag: widget.foodName,
-                child: Container(
-                  height: 200.0,
-                  width: 200.0,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: AssetImage(widget.imgPath),
+          // Delivery time, rating, fees.
+          Padding(
+            padding: const EdgeInsets.only(left: 15.0, right: 15.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text("15-25 min",
+                    style: GoogleFonts.notoSans(
+                        fontSize: 14.0, fontWeight: FontWeight.w600)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Rating stars.
+                    Text(
+                      widget.store.ratingStars.toString(),
+                      style: GoogleFonts.lato(
+                        textStyle: TextStyle(
+                          fontSize: 14.0,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
                     ),
-                  ),
+                    SizedBox(width: 5.0),
+                    // Star icon.
+                    Icon(
+                      Icons.star,
+                      color: Colors.orangeAccent[400],
+                      size: 14.0,
+                    ),
+                    SizedBox(width: 5.0),
+                    // Rating votes.
+                    Text(
+                      "(${widget.store.ratingVotesStr})",
+                      style: GoogleFonts.lato(
+                          textStyle:
+                              TextStyle(fontSize: 14.0, color: Colors.black)),
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(width: 15.0),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  // Btn - Favorite.
-                  InkWell(
-                    borderRadius: BorderRadius.circular(5.0),
-                    onTap: () {
-                      // TODO: Implement ontap.
-                    },
-                    child: Stack(
-                      children: <Widget>[
-                        // Shadow.
-                        Container(
-                          height: 45.0,
-                          width: 40.0,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15.0),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(0xFFFE7D6A).withOpacity(0.1),
-                                blurRadius: 6.0,
-                                spreadRadius: 6.0,
-                                offset: Offset(5.0, 11.0),
-                              ),
-                            ],
-                            color: Colors.red,
-                          ),
-                        ),
-                        // Icon.
-                        Container(
-                          height: 50.0,
-                          width: 50.0,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15.0),
-                            color: Colors.white,
-                          ),
-                          child: Center(
-                            child: Icon(
-                              Icons.favorite_border,
-                              color: Color(0xFFFE7D6A),
-                              size: 25.0,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 35.0),
-                  // Btn - Share.
-                  InkWell(
-                    borderRadius: BorderRadius.circular(5.0),
-                    onTap: () {},
-                    child: Stack(
-                      children: <Widget>[
-                        // Shadow.
-                        Container(
-                          height: 45.0,
-                          width: 40.0,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15.0),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(0xFFFE7D6A).withOpacity(0.1),
-                                blurRadius: 6.0,
-                                spreadRadius: 6.0,
-                                offset: Offset(5.0, 11.0),
-                              ),
-                            ],
-                            color: Colors.red,
-                          ),
-                        ),
-                        // Icon.
-                        Container(
-                          height: 50.0,
-                          width: 50.0,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15.0),
-                            color: Colors.white,
-                          ),
-                          child: Center(
-                            child: Icon(
-                              Icons.restore,
-                              color: Color(0xFFFE7D6A),
-                              size: 25.0,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                Text("\$2.99 delivery fee",
+                    style: GoogleFonts.notoSans(
+                        fontSize: 14.0, fontWeight: FontWeight.w600))
+              ],
+            ),
           ),
-          SizedBox(height: 10.0),
-          // Price and quantity section.
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Divider(height: 40.0),
+          // Store info section.
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              // Price.
-              Container(
-                height: 70.0,
-                width: 125.0,
-                child: Center(
-                  child: Text(
-                      "\$" + (int.parse(widget.price) * quantity).toString(),
-                      style: GoogleFonts.notoSans(
-                          fontSize: 40.0,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF5E6166))),
+              // Section header.
+              Padding(
+                padding: const EdgeInsets.only(left: 15.0),
+                child: Text(
+                  "Restaurant info",
+                  style: GoogleFonts.notoSans(fontWeight: FontWeight.w600),
                 ),
               ),
-              // Quantity controls.
-              Container(
-                height: 60.0,
-                width: 225.0,
-                decoration: BoxDecoration(
-                  color: Color(0xFFFE7D6A),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10.0),
-                    bottomLeft: Radius.circular(10.0),
-                  ),
-                ),
+              // Store address.
+              Padding(
+                padding:
+                    const EdgeInsets.only(top: 5.0, left: 15.0, right: 15.0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    Container(
-                      height: 40.0,
-                      width: 105.0,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: Row(
-                        children: <Widget>[
-                          // Btn -- Remove.
-                          IconButton(
-                              icon: Icon(Icons.remove,
-                                  size: 17.0, color: Color(0xFFFE7D6A)),
-                              onPressed: () =>
-                                  adjustQuantity(direction: 'MINUS')),
-                          // Quantity.
-                          Text(
-                            quantity.toString(),
-                            style: GoogleFonts.notoSans(
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.w400,
-                              color: Color(0xFFFe7D6A),
-                            ),
-                          ),
-                          // Btn -- Add.
-                          IconButton(
-                              icon: Icon(Icons.add,
-                                  size: 17.0, color: Color(0xFFFE7D6A)),
-                              onPressed: () =>
-                                  adjustQuantity(direction: 'PLUS')),
-                        ],
-                      ),
-                    ),
-                    Text("Add to cart"),
+                    Text("1455 Market St, Toronto...",
+                        style: GoogleFonts.notoSans()),
+                    Text("MORE INFO",
+                        style: GoogleFonts.notoSans(
+                            decoration: TextDecoration.underline)),
                   ],
                 ),
               ),
             ],
           ),
-          // Featured section.
+          Divider(height: 40.0),
+          // Menu section.
           Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Text(
-              "FEATURED",
-              style: GoogleFonts.notoSans(
-                fontSize: 16.0,
-                fontWeight: FontWeight.w700,
-              ),
+            padding: EdgeInsets.only(top: 0, left: 15.0, right: 15.0),
+            child: Container(
+              child: StreamBuilder(
+                  stream: Database(firestore: widget.firestore)
+                      .streamFood(uid: widget.store.uid),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<List<FoodModel>> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.active ||
+                        snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.hasData == false || snapshot.data.isEmpty) {
+                        return const Center(
+                          child: Text("The menu is currently unavailable."),
+                        );
+                      } else {
+                        // TODO: implement listview builder.
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 10.0),
+                          child: ListView.separated(
+                            padding: EdgeInsets.all(0),
+                            shrinkWrap: true,
+                            physics: ScrollPhysics(),
+                            scrollDirection: Axis.vertical,
+                            itemCount: snapshot.data.length,
+                            itemBuilder: (context, index) {
+                              return FoodCard(food: snapshot.data[index]);
+                            },
+                            separatorBuilder:
+                                (BuildContext context, int index) {
+                              return SizedBox(
+                                height: 40.0,
+                              );
+                            },
+                          ),
+                        );
+                      }
+                    } else {
+                      return Center(child: Text("Loading..."));
+                    }
+                  }),
             ),
           ),
-          Container(
-            height: 225.0,
-            width: MediaQuery.of(context).size.width,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: <Widget>[
-                _buildListItem(
-                    imgPath: "assets/cheese.png",
-                    name: "Sweet cheese",
-                    price: "11",
-                    color: pinkColor),
-                _buildListItem(
-                    imgPath: "assets/taco.png",
-                    name: "Taco",
-                    price: "9",
-                    color: greenColor),
-                _buildListItem(
-                    imgPath: "assets/sandwich.png",
-                    name: "Sandwich",
-                    price: "4",
-                    color: blueColor),
-              ],
-            ),
-          ),
-        ],
-      ),
+        ]),
+      )),
     );
   }
 }
+
+// Column(
+//   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//   children: <Widget>[
+//
+//     // Btn - Share.
+//     InkWell(
+//       borderRadius: BorderRadius.circular(5.0),
+//       onTap: () {},
+//       child: Stack(
+//         children: <Widget>[
+//           // Shadow.
+//           Container(
+//             height: 45.0,
+//             width: 40.0,
+//             decoration: BoxDecoration(
+//               borderRadius: BorderRadius.circular(15.0),
+//               boxShadow: [
+//                 BoxShadow(
+//                   color: Color(0xFFFE7D6A).withOpacity(0.1),
+//                   blurRadius: 6.0,
+//                   spreadRadius: 6.0,
+//                   offset: Offset(5.0, 11.0),
+//                 ),
+//               ],
+//               color: Colors.red,
+//             ),
+//           ),
+//           // Icon.
+//           Container(
+//             height: 50.0,
+//             width: 50.0,
+//             decoration: BoxDecoration(
+//               borderRadius: BorderRadius.circular(15.0),
+//               color: Colors.white,
+//             ),
+//             child: Center(
+//               child: Icon(
+//                 Icons.restore,
+//                 color: Color(0xFFFE7D6A),
+//                 size: 25.0,
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     ),
+//   ],
+// ),
+
+// Quantity controls.
+// Container(
+//   height: 60.0,
+//   width: 225.0,
+//   decoration: BoxDecoration(
+//     color: Color(0xFFFE7D6A),
+//     borderRadius: BorderRadius.only(
+//       topLeft: Radius.circular(10.0),
+//       bottomLeft: Radius.circular(10.0),
+//     ),
+//   ),
+//   child: Row(
+//     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//     children: <Widget>[
+//       Container(
+//         height: 40.0,
+//         width: 105.0,
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           borderRadius: BorderRadius.circular(10.0),
+//         ),
+//         child: Row(
+//           children: <Widget>[
+//             // Btn -- Remove.
+//             IconButton(
+//                 icon: Icon(Icons.remove,
+//                     size: 17.0, color: Color(0xFFFE7D6A)),
+//                 onPressed: () =>
+//                     adjustQuantity(direction: 'MINUS')),
+//             // Quantity.
+//             Text(
+//               "2",
+//               style: GoogleFonts.notoSans(
+//                 fontSize: 14.0,
+//                 fontWeight: FontWeight.w400,
+//                 color: Color(0xFFFe7D6A),
+//               ),
+//             ),
+//             // Btn -- Add.
+//             IconButton(
+//                 icon: Icon(Icons.add,
+//                     size: 17.0, color: Color(0xFFFE7D6A)),
+//                 onPressed: () =>
+//                     adjustQuantity(direction: 'PLUS')),
+//           ],
+//         ),
+//       ),
+//       Text("Add to cart"),
+//     ],
+//   ),
+// ),

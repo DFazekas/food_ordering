@@ -2,8 +2,10 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:food_ordering/models/food.dart';
 
 class StoreModel {
+  String uid;
   String name;
   String logoPath;
   int numItems;
@@ -13,9 +15,11 @@ class StoreModel {
   String ratingVotesStr;
   Color colorMain;
   Color colorText;
+  List<FoodModel> menu;
 
   StoreModel(
-      {this.name,
+      {this.uid,
+      this.name,
       this.logoPath,
       this.numItems,
       this.estimatedDelivery,
@@ -27,7 +31,7 @@ class StoreModel {
   StoreModel.fromDocumentSnapshot({DocumentSnapshot doc}) {
     try {
       var data = doc.data();
-
+      this.uid = doc.id;
       this.name = data["name"] as String;
       this.logoPath = data["logo_path"] != null
           ? (data["logo_path"] as String)
