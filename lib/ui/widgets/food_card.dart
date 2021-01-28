@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 // External packages.
 import 'package:google_fonts/google_fonts.dart';
 // Custom packages.
-import 'package:food_ordering/models/food.dart';
+import 'package:food_ordering/data_layer/food.dart';
 
 class FoodCard extends StatefulWidget {
   final FoodModel food;

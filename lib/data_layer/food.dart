@@ -1,4 +1,7 @@
+// Standard packages.
+// External packages.
 import 'package:cloud_firestore/cloud_firestore.dart';
+// Custom packages.
 
 class FoodModel {
   String name;

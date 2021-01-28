@@ -1,6 +1,9 @@
+// Standard packages.
 import 'package:flutter/material.dart';
+// External packages.
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:google_fonts/google_fonts.dart';
+// Custom packages.
 
 class FoodTab extends StatefulWidget {
   @override

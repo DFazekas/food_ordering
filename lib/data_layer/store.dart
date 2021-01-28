@@ -1,8 +1,10 @@
+// Standard packages.
 import 'dart:math';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:food_ordering/models/food.dart';
+// External packages.
+import 'package:cloud_firestore/cloud_firestore.dart';
+// Custom packages.
+import 'package:food_ordering/data_layer/food.dart';
 
 class StoreModel {
   String uid;

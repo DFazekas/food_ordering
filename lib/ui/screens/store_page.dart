@@ -1,14 +1,14 @@
 // Standard packages.
 import 'package:flutter/material.dart';
-import 'package:food_ordering/models/food.dart';
-import 'package:food_ordering/services/database.dart';
-import 'package:food_ordering/widgets/food_card.dart';
 // External packages.
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 // Custom packages.
-import 'package:food_ordering/models/store.dart';
+import 'package:food_ordering/data_layer/database.dart';
+import 'package:food_ordering/data_layer/food.dart';
+import 'package:food_ordering/data_layer/store.dart';
+import 'package:food_ordering/ui/widgets/food_card.dart';
 
 class StorePage extends StatefulWidget {
   final FirebaseFirestore firestore;
@@ -27,23 +27,6 @@ class _StorePageState extends State<StorePage> {
   final Color blueColor = Color(0xFFC6E7FE);
   final Color orangeColor = Color(0xFFFFD143);
   int numCheckout = 0;
-
-  /// Adjusts the quantity and net price.
-  void adjustQuantity({String direction}) {
-    setState(() {
-      // TODO: implement function.
-      // switch (direction) {
-      //   case "MINUS":
-      //     quantity = (quantity > 1) ? (quantity - 1) : 1;
-      //     break;
-      //   case "PLUS":
-      //     quantity = (quantity < 9) ? (quantity + 1) : quantity;
-      //     break;
-      //   default:
-      //     return;
-      // }
-    });
-  }
 
   Widget _buildListItem(
       {String imgPath, String name, String price, Color color}) {
@@ -378,104 +361,3 @@ class _StorePageState extends State<StorePage> {
     );
   }
 }
-
-// Column(
-//   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//   children: <Widget>[
-//
-//     // Btn - Share.
-//     InkWell(
-//       borderRadius: BorderRadius.circular(5.0),
-//       onTap: () {},
-//       child: Stack(
-//         children: <Widget>[
-//           // Shadow.
-//           Container(
-//             height: 45.0,
-//             width: 40.0,
-//             decoration: BoxDecoration(
-//               borderRadius: BorderRadius.circular(15.0),
-//               boxShadow: [
-//                 BoxShadow(
-//                   color: Color(0xFFFE7D6A).withOpacity(0.1),
-//                   blurRadius: 6.0,
-//                   spreadRadius: 6.0,
-//                   offset: Offset(5.0, 11.0),
-//                 ),
-//               ],
-//               color: Colors.red,
-//             ),
-//           ),
-//           // Icon.
-//           Container(
-//             height: 50.0,
-//             width: 50.0,
-//             decoration: BoxDecoration(
-//               borderRadius: BorderRadius.circular(15.0),
-//               color: Colors.white,
-//             ),
-//             child: Center(
-//               child: Icon(
-//                 Icons.restore,
-//                 color: Color(0xFFFE7D6A),
-//                 size: 25.0,
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     ),
-//   ],
-// ),
-
-// Quantity controls.
-// Container(
-//   height: 60.0,
-//   width: 225.0,
-//   decoration: BoxDecoration(
-//     color: Color(0xFFFE7D6A),
-//     borderRadius: BorderRadius.only(
-//       topLeft: Radius.circular(10.0),
-//       bottomLeft: Radius.circular(10.0),
-//     ),
-//   ),
-//   child: Row(
-//     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//     children: <Widget>[
-//       Container(
-//         height: 40.0,
-//         width: 105.0,
-//         decoration: BoxDecoration(
-//           color: Colors.white,
-//           borderRadius: BorderRadius.circular(10.0),
-//         ),
-//         child: Row(
-//           children: <Widget>[
-//             // Btn -- Remove.
-//             IconButton(
-//                 icon: Icon(Icons.remove,
-//                     size: 17.0, color: Color(0xFFFE7D6A)),
-//                 onPressed: () =>
-//                     adjustQuantity(direction: 'MINUS')),
-//             // Quantity.
-//             Text(
-//               "2",
-//               style: GoogleFonts.notoSans(
-//                 fontSize: 14.0,
-//                 fontWeight: FontWeight.w400,
-//                 color: Color(0xFFFe7D6A),
-//               ),
-//             ),
-//             // Btn -- Add.
-//             IconButton(
-//                 icon: Icon(Icons.add,
-//                     size: 17.0, color: Color(0xFFFE7D6A)),
-//                 onPressed: () =>
-//                     adjustQuantity(direction: 'PLUS')),
-//           ],
-//         ),
-//       ),
-//       Text("Add to cart"),
-//     ],
-//   ),
-// ),

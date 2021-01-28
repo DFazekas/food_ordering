@@ -1,7 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+// Standard packages.
 import 'package:flutter/material.dart';
-import 'package:food_ordering/models/food.dart';
-import 'package:food_ordering/models/store.dart';
+// External packages.
+import 'package:cloud_firestore/cloud_firestore.dart';
+// Custom packages.
+import 'package:food_ordering/data_layer/food.dart';
+import 'package:food_ordering/data_layer/store.dart';
 
 class Database {
   final FirebaseFirestore firestore;

@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 // External packages.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:food_ordering/models/food.dart';
 // Custom packages.
-import 'package:food_ordering/models/store.dart';
-import 'package:food_ordering/screens/store_page.dart';
-import 'package:food_ordering/services/database.dart';
+import 'package:food_ordering/data_layer/store.dart';
+import 'package:food_ordering/ui/screens/store_page.dart';
 
 class StoreCard extends StatefulWidget {
   final FirebaseFirestore firestore;
